@@ -1,0 +1,5 @@
+.customer-metadata-panel{min-width:0;margin:18px 0;padding:18px;border:1px solid #d6e2df;border-radius:12px;background:#f7faf9}
+.customer-metadata-panel :is(li,strong,label,code){overflow-wrap:anywhere}
+.customer-metadata-panel ul{padding-inline-start:18px}
+.customer-metadata-panel button{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+

@@ -1,0 +1,16 @@
+{
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "npm ci",
+  "rewrites": [
+    {
+      "source": "/client",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/client/:path*",
+      "destination": "/index.html"
+    }
+  ]
+}
