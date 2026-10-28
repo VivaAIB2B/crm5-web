@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import ScopeAdmin from './ScopeAdmin'
 import ConnectionPage from './ConnectionPage'
-import DictionaryPanel from './DictionaryPanel'
 import ClientAccessPanel from './ClientAccessPanel'
 import SettingsPanel from './SettingsPanel'
 import ConsoleIcon from './ConsoleIcon'
@@ -61,7 +60,7 @@ function Workspace({ target, targets, fixtureMode, onSelect, refreshTargets, onC
   const [csrf, setCsrf] = useState(''), [connectionBusy, setConnectionBusy] = useState(false), [error, setError] = useState('')
   const [dictionaryBusy, setDictionaryBusy] = useState(false)
   const busy = connectionBusy || dictionaryBusy
-  const [dirty, setDirty] = useState(false), [creating, setCreating] = useState(!target && !fixtureMode), [dictionaryKey, setDictionaryKey] = useState(0)
+  const [dirty, setDirty] = useState(false), [creating, setCreating] = useState(!target && !fixtureMode)
   const [dictionaryDirty, setDictionaryDirty] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const context = Boolean(target || fixtureMode)
@@ -99,13 +98,12 @@ function Workspace({ target, targets, fixtureMode, onSelect, refreshTargets, onC
     {!loaded && <p role="status">Caricamento del collegamento…</p>}
     {loaded && <div className="domain-content">
       {page === 'Connessioni' && <>
-        <details className="connection-details" open={!context || creating ? true : undefined}><summary><span>1 · Collegamento al database</span><strong>{target?.name ?? state?.setup?.endpoint.database ?? 'Da configurare'}</strong></summary>
+        <details className="connection-details" open><summary><span>1 · Collegamento al database</span><strong>{target?.name ?? state?.setup?.endpoint.database ?? 'Da configurare'}</strong></summary>
           <ConnectionPage target={target} initial={state?.setup ?? null} revision={state?.revision ?? 0} fixture={fixtureMode} busy={busy} onBusy={setConnectionBusy} onDirty={setDirty} onModeChange={setCreating}
             onCreate={async (name, connection, password) => { await onCreated(await api<DatabaseTarget>('targets', { name, connection, password: password || null })) }}
-            onSave={async (connection, password) => { setState(await api<AdministrationState>('connection', { revision: state?.revision ?? 0, connection, password: password || null })); setDictionaryKey(k => k + 1); if (!fixtureMode) await refreshTargets() }}
+            onSave={async (connection, password) => { setState(await api<AdministrationState>('connection', { revision: state?.revision ?? 0, connection, password: password || null })); if (!fixtureMode) await refreshTargets() }}
             onCheck={async () => { const r = await api('check', {}); if (!fixtureMode) await refreshTargets(); return r }} onContinue={() => setPage('Perimetro')} />
         </details>
-        {context && state && !creating && <details id="business-dictionary"><summary>Configurazione precedente a capacità</summary><DictionaryPanel key={dictionaryKey} csrf={csrf} targetId={target?.id} disabled={dirty || connectionBusy} onDirtyChange={setDictionaryDirty} onBusyChange={setDictionaryBusy} onConfirmed={() => {}} /></details>}
       </>}
       {(page === 'Perimetro' || page === 'Collaudo') && context && <ScopeAdmin csrf={csrf} targetId={target?.id} mode={page==='Perimetro'?'setup':'test'} onModeChange={m=>setPage(m==='setup'?'Perimetro':'Collaudo')} onDirtyChange={setDictionaryDirty} onBusyChange={setDictionaryBusy}/>}
       {(page === 'Perimetro' || page === 'Collaudo') && !context && <p>Configura prima un collegamento nella pagina Connessioni.</p>}
