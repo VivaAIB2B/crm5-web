@@ -38,3 +38,26 @@ Le chiavi AI, le password dei database e le configurazioni riservate devono rest
 Esportazione dei soli sorgenti frontend dalla revisione `54e97fdc06faf67cd22d9fedfaae3630e70947a0` del 27 ottobre 2026. Nessuna cronologia del repository sorgente è inclusa. Gli aggiornamenti successivi vanno sincronizzati esplicitamente; questa copia non segue automaticamente il repository del motore.
 
 Non è concessa una licenza open source mediante questa pubblicazione.
+
+## PC e VM IIS
+
+Il frontend usa gli stessi percorsi relativi `/api` in entrambi gli ambienti.
+Su Vercel, il proxy inoltra le richieste alla VM mantenendo cookie e URL sul dominio
+`https://crm5-web.vercel.app`. Non aggiungere password PostgreSQL o SQL al frontend.
+
+Quando il backend ha un nome DNS pubblico e un certificato HTTPS attendibile:
+
+```sh
+node scripts/configure-api.mjs https://NOME-DNS-BACKEND:44380
+```
+
+Verificare il `vercel.json` generato e fare commit prima del deployment. Lo script
+non va eseguito come build command: Vercel legge le rotte prima della build.
+Il backend deve usare la modalità `CRM5_HOST_MODE=Iis`, con
+`CRM5_FRONTEND_ORIGIN=https://crm5-web.vercel.app` e
+`CRM5_PUBLIC_API_ORIGIN` uguale all'origine passata allo script.
+Le preview Vercel con altri domini non sono abilitate automaticamente.
+
+Il certificato self-signed CRM5-Demo serve solo per prove locali: il proxy richiede
+un certificato attendibile. Finché il DNS/TLS non è pronto, lasciare le rotte API
+non configurate. La pubblicazione del frontend da sola non rende operativo il backend.
