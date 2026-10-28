@@ -5,6 +5,10 @@
   "installCommand": "npm ci",
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "https://crm5-backend.italynorth.cloudapp.azure.com/api/:path*"
+    },
+    {
       "source": "/client",
       "destination": "/index.html"
     },
