@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import ScopeAdmin from './ScopeAdmin'
+import ScopeWorkflowAdmin from './ScopeWorkflowAdmin'
 import ConnectionPage from './ConnectionPage'
 import ClientAccessPanel from './ClientAccessPanel'
 import SettingsPanel from './SettingsPanel'
@@ -8,8 +8,8 @@ import type { AdministrationState } from './adminTypes'
 import { targetHeaders, targetMessage, type DatabaseTarget } from './databaseTargets'
 import './domain-console.css'
 
-type Page = 'Connessioni' | 'Perimetro' | 'Collaudo' | 'Utenti' | 'Impostazioni'
-const pages = [{ name: 'Connessioni', icon: 'database' }, {name:'Perimetro',icon:'questions'}, { name: 'Collaudo', icon: 'questions' },
+type Page = 'Connessioni' | 'Perimetro' | 'Collaudo' | 'Preparazione' | 'Utenti' | 'Impostazioni'
+const pages = [{ name: 'Connessioni', icon: 'database' }, {name:'Perimetro',icon:'questions'}, { name: 'Collaudo', icon: 'questions' }, {name:'Preparazione',icon:'settings'},
   { name: 'Utenti', icon: 'users' }, { name: 'Impostazioni', icon: 'settings' }] as const
 
 export default function AdminConsole() {
@@ -90,7 +90,7 @@ function Workspace({ target, targets, fixtureMode, onSelect, refreshTargets, onC
         disabled={busy} onClick={() => leave(() => setPage(p.name))}><ConsoleIcon name={p.icon} /><span>{p.name}</span></button>)}</nav>
       <p className="domain-navigation-note">Dai significati aziendali<br />alle domande del cliente.</p>
     </aside>
-    <main className={"domain-main"+(["Perimetro","Collaudo"].includes(page)?" scope-wide":"")}><header className="domain-header"><div><p className="eyebrow">IL TUO SPAZIO DI LAVORO</p><h1>{page}</h1></div>
+    <main className={"domain-main"+(["Perimetro","Collaudo","Preparazione"].includes(page)?" scope-wide":"")}><header className="domain-header"><div><p className="eyebrow">IL TUO SPAZIO DI LAVORO</p><h1>{page}</h1></div>
       {!fixtureMode && <label className="domain-target-picker">Database<select aria-label="Database target" value={target?.id ?? ''} disabled={busy} onChange={e => leave(() => onSelect(e.target.value))}>
         <option value="">Nuovo collegamento</option>{targets.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>}
     </header>
@@ -105,8 +105,8 @@ function Workspace({ target, targets, fixtureMode, onSelect, refreshTargets, onC
             onCheck={async () => { const r = await api('check', {}); if (!fixtureMode) await refreshTargets(); return r }} onContinue={() => setPage('Perimetro')} />
         </details>
       </>}
-      {(page === 'Perimetro' || page === 'Collaudo') && context && <ScopeAdmin csrf={csrf} targetId={target?.id} mode={page==='Perimetro'?'setup':'test'} onModeChange={m=>setPage(m==='setup'?'Perimetro':'Collaudo')} onDirtyChange={setDictionaryDirty} onBusyChange={setDictionaryBusy}/>}
-      {(page === 'Perimetro' || page === 'Collaudo') && !context && <p>Configura prima un collegamento nella pagina Connessioni.</p>}
+      {(page === 'Perimetro' || page === 'Collaudo' || page === 'Preparazione') && context && <ScopeWorkflowAdmin csrf={csrf} targetId={target?.id} mode={page==='Perimetro'?'setup':page==='Preparazione'?'technical':'test'} onModeChange={m=>setPage(m==='setup'?'Perimetro':m==='technical'?'Preparazione':'Collaudo')} onDirtyChange={setDictionaryDirty} onBusyChange={setDictionaryBusy}/>}
+      {(page === 'Perimetro' || page === 'Collaudo' || page === 'Preparazione') && !context && <p>Configura prima un collegamento nella pagina Connessioni.</p>}
       {page === 'Utenti' && <ClientAccessPanel csrf={csrf} targetId={target?.id} packageReady={Boolean(state?.activeVersion)} />}
       {page === 'Impostazioni' && (context ? <SettingsPanel csrf={csrf} targetId={target?.id} /> : <section><h2>Scegli un collegamento</h2><p>Le impostazioni AI sono specifiche del database.</p></section>)}
     </div>}

@@ -12,6 +12,19 @@ export function scopeError(code:string){
  return diagnostic&&!text.includes(diagnostic)?text+' (Codice: '+diagnostic+')':text
 }
 function scopeErrorText(code:string){
+ const workflow:Record<string,string>={
+ CRM5_WORKFLOW_REOPEN_REQUIRED:'Il riepilogo è confermato. Riapri il colloquio per proporre modifiche.',
+ CRM5_WORKFLOW_CONFIRM_REQUIRED:'Conferma prima il riepilogo aggiornato nel colloquio.',
+ CRM5_WORKFLOW_SUMMARY_REQUIRED:'Completiamo il riepilogo prima di confermare l’analisi.',
+ CRM5_WORKFLOW_TECHNICAL_INCOMPLETE:'Nella seconda fase occorre completare dati consentiti, associazioni, identità di prova e verifica delle regole.',
+ CRM5_WORKFLOW_FILTER_INCOMPLETE:'La visibilità concordata non è ancora applicabile a tutte le fonti selezionate. Il tecnico deve completare i filtri; gli accessi non sono stati ampliati.',
+ CRM5_WORKFLOW_OPEN_POINT:'Resta un punto aperto che riguarda questo scenario. Possiamo proseguire con gli altri scenari pronti.',
+ CRM5_WORKFLOW_SCENARIO_NOT_READY:'Questo scenario non è ancora pronto per interrogare dati reali.',
+ CRM5_WORKFLOW_SCENARIO_REQUIRED:'Scegli lo scenario da utilizzare.',
+ CRM5_WORKFLOW_LEGACY_WRITE_DENIED:'Questo perimetro usa il nuovo percorso. Aggiorna la pagina per continuare.',
+ CRM5_WORKFLOW_PUBLICATION_CONFIRM_REQUIRED:'La pubblicazione richiede la selezione esplicita degli scenari collaudati e la conferma dell’amministratore.'}
+ if(workflow[code])return workflow[code]
+
  if(code==='CRM5_SCOPE_ROLE_MIGRATION_REQUIRED')return 'Gli accessi precedenti contengono restrizioni individuali. Il tecnico deve trasferirle esplicitamente nei grant del ruolo prima della conferma: non vengono eliminate automaticamente.'
  if(code==='CRM5_SCOPE_SIMULATED_FAILURE')return 'Simulazione dichiarata: il servizio di ricerca non è disponibile. Nessuna chiamata AI o query è stata eseguita. Questa prova verifica la presentazione dell’errore, non un guasto reale.'
  if(code==='CRM5_AI_BUDGET_EXCEEDED')return 'È stato raggiunto un limite CRM5 di chiamate, token riservati o costo. Controlla utilizzo e budget nelle Impostazioni AI; il limite può essere al minuto o giornaliero.'

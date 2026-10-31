@@ -27,8 +27,8 @@ function ScopeClientChat({scope,csrf,database,scopeId}:{scope:ClientScope;csrf:s
 }
 
 export default function ScopeClient({scope,csrf,database}:{scope:ClientScope;csrf:string;database:string}){
- const[items,setItems]=useState<{id:string;name:string}[]>([]),[id,setId]=useState(''),[error,setError]=useState('');
- useEffect(()=>{let active=true;setItems([]);setId('');void clientApi<{id:string;name:string}[]>('scope/catalog',csrf,undefined,undefined,undefined,scope).then(list=>{if(active){setItems(list);setId(list[0]?.id??'')}}).catch(e=>{if(active)setError(scopeError(e.message))});return()=>{active=false}},[scope.context]);
- return <><label className="scope-client-picker">Perimetro<select aria-label="Perimetro da interrogare" value={id} onChange={e=>setId(e.target.value)}>{items.map(i=><option key={i.id} value={i.id}>{i.name}</option>)}</select></label>{error&&<p role="alert">{error}</p>}{id?<ScopeClientChat key={id} scope={scope} csrf={csrf} database={database+' · '+items.find(i=>i.id===id)?.name} scopeId={id}/>:<p>Nessun perimetro pubblicato disponibile.</p>}</>
+ const[items,setItems]=useState<{id:string;name:string;published:boolean}[]>([]),[id,setId]=useState(''),[error,setError]=useState('');
+ useEffect(()=>{let active=true;setItems([]);setId('');void clientApi<{id:string;name:string;published:boolean}[]>('scope/catalog',csrf,undefined,undefined,undefined,scope).then(list=>{if(active){setItems(list);setId(list.find(x=>x.published)?.id??'')}}).catch(e=>{if(active)setError(scopeError(e.message))});return()=>{active=false}},[scope.context]);
+ return <><label className="scope-client-picker">Perimetro<select aria-label="Perimetro da interrogare" value={id} onChange={e=>setId(e.target.value)}>{items.map(i=><option key={i.id} value={i.id} disabled={!i.published}>{i.name}{!i.published?' — non ancora disponibile':''}</option>)}</select></label>{error&&<p role="alert">{error}</p>}{id?<ScopeClientChat key={id} scope={scope} csrf={csrf} database={database+' · '+items.find(i=>i.id===id)?.name} scopeId={id}/>:<p>Nessun perimetro pubblicato disponibile.</p>}</>
 }
 
